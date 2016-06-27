@@ -1,6 +1,7 @@
 Name: redborder-common
 Version: %{__version}
 Release: %{__release}%{?dist}
+BuildArch: noarch
 Summary: Package for redborder containing common functions and scripts.
 
 License: AGPL 3.0
