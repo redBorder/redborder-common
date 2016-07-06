@@ -24,6 +24,13 @@ mkdir -p %{buildroot}/etc/profile.d
 install -D -m 0644 rb_functions.sh %{buildroot}/usr/lib/redborder/bin
 install -D -m 0644 redborder-common.sh %{buildroot}/etc/profile.d
 
+%pre
+getent group redborder >/dev/null || groupadd -r redborder
+getent passwd redborder >/dev/null || \
+    useradd -r -g redborder -d /home/redborder -s /bin/bash \
+    -c "User of redborder framework" redborder
+exit 0
+
 %files
 %defattr(0644,root,root)
 /usr/lib/redborder/bin/rb_functions.sh
