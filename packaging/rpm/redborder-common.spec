@@ -29,7 +29,7 @@ install -D -m 0755 resources/rb_run_chef_once.sh %{buildroot}/usr/lib/redborder/
 getent group redborder >/dev/null || groupadd -r redborder
 getent passwd redborder >/dev/null || \
     useradd -r -g redborder -d /home/redborder -s /bin/bash \
-    -c "User of redborder framework" redborder
+    -c "User of redborder framework" redborder -m
 exit 0
 
 %files
