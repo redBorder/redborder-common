@@ -8,7 +8,7 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/redborder-common
 Source0: %{name}-%{version}.tar.gz
 
-Requires: bash dialog
+Requires: bash
 
 %description
 %{summary}
@@ -19,11 +19,8 @@ Requires: bash dialog
 %build
 
 %install
-mkdir -p %{buildroot}/usr/lib/redborder/bin
 mkdir -p %{buildroot}/etc/profile.d
-install -D -m 0644 redborder-common.sh %{buildroot}/etc/profile.d
-install -D -m 0644 resources/rb_functions.sh %{buildroot}/usr/lib/redborder/bin
-install -D -m 0755 resources/rb_run_chef_once.sh %{buildroot}/usr/lib/redborder/bin
+install -D -m 0644 resources/redborder-common.sh %{buildroot}/etc/profile.d
 
 %pre
 getent group redborder >/dev/null || groupadd -r redborder
@@ -34,14 +31,16 @@ exit 0
 
 %files
 %defattr(0644,root,root)
-/usr/lib/redborder/bin/rb_functions.sh
 /etc/profile.d/redborder-common.sh
-%defattr(0755,root,root)
-/usr/lib/redborder/bin/rb_run_chef_once.sh
+
 %doc
 
 %changelog
-* Thu Jul 07 2016 Carlos J. Mateos <cjmateos@redborder.com> - 1.0.0-2
+* Thu Sep 08 2016 Carlos J. Mateos <cjmateos@redborder.com> - 1.0.0-1
+- Remove unused scripts
+
+* Thu Jul 07 2016 Carlos J. Mateos <cjmateos@redborder.com> - 1.0.0-1
 - Added various rb scripts
+
 * Thu Jun 23 2016 Juan J. Prieto <jjprieto@redborder.com> - 1.0.0-1
 - first spec version
