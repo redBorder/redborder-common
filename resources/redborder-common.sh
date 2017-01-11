@@ -11,7 +11,7 @@ alias log='tail -n 200 -f'
 
 # Send History to syslog
 PROMPT_COMMAND=$(history -a)
-typeset -r PROMPT_COMMAND
+#typeset -r PROMPT_COMMAND
 function log2syslog
 {
 	declare command
