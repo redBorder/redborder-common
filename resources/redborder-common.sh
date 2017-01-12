@@ -10,13 +10,14 @@ alias bwm-ng='bwm-ng -u bits -t 1000 -d'
 alias log='tail -n 200 -f'
 
 # Send History to syslog
-#PROMPT_COMMAND=$(history -a)
-#typeset -r PROMPT_COMMAND
 function log2syslog
 {
 	declare command
 	command=$BASH_COMMAND
-	logger -p local1.notice -t bash -i -- $USER : $PWD : $command
+	case $command in
+		printf\ \"*) : ;;
+		*) shopt -q login_shell && logger -p local1.notice -t "bash[$$]" -- $USER : $PWD : $command ;;
+	esac
 }
 trap log2syslog DEBUG
 
