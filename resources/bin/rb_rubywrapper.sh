@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /etc/profile
+[ -z $RBDIR ] && source /etc/profile
 
 f_usage() {
 
