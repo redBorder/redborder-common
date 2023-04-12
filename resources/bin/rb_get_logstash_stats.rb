@@ -19,17 +19,25 @@ require 'json'
 require "getopt/std"
 require 'net/http'
 
-opt = Getopt::Std.getopts("hcelmnu")
+opt = Getopt::Std.getopts("hcelmnupvwz")
 
-def usage 
-  printf("USAGE: rb_get_logstash_stats.sh [-h][-c][-l][-m][-n][-u]\n")
+pipelines=["bulkstats-pipeline" "location-pipeline" "meraki-pipeline" "mobility-pipeline" "monitor-pipeline" "netflow-pipeline" "nmsp-pipeline" "radius-pipeline" "rbwindow-pipeline" "redfish-pipeline" "scanner-pipeline" "sflow-pipeline" "social-pipeline" "vault-pipeline"]
+
+logstash="localhost:9600"
+
+def usage
+  printf("USAGE: rb_get_logstash_stats.sh [-h][-c][-l][-m][-n][-u][-p][-v][-w][-z]\n")
   printf("  * -h -> get this help\n")
   printf("  * -c -> get logstash cpu percent\n")
-  printf("  * -e -> get logstash in events\n")
   printf("  * -l -> get logstash load average 1m\n")
   printf("  * -m -> get logstash load average 5m\n")
   printf("  * -n -> get logstash load average 15m\n")
   printf("  * -u -> get logstash heap used percent\n")
+  printf("  * -v -> get logstash memory\n")
+  printf("  * -e [<pipeline>] -> get logstash in events\n")
+  printf("  * -w <pipeline> -> get the number of events in queue\n")
+  printf("  * -z <pipeline> -> get the number of events in queue in bytes\n")
+  printf("  * pipelines: rbwindow-pipeline apstate-pipeline intrusion-pipeline bi-pipeline scanner-pipeline nmsp-pipeline radius-pipeline vault-pipeline netflow-pipeline sflow-pipeline meraki-pipeline monitor-pipeline social-pipeline location-pipeline mobility-pipeline redfish-pipeline bulkstats-pipeline ips-pipeline mailgw-pipeline scores-pipeline malware-pipeline \n")
 end
 
 
@@ -41,16 +49,19 @@ def get_elements(node, url)
   return Net::HTTP.get(URI.parse("http://#{node}/#{url}"))
 end
 
-logstash="localhost:9600"
-
 if opt["h"] or opt.empty?
   usage
 elsif opt["c"]
   print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/process?pretty")))["process"]["cpu"]["percent"]
   printf("\n")
 elsif opt["e"]
-  print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/events?pretty")))["events"]["in"]
-  printf("\n")
+  pipeline = ARGV[0] rescue nil
+  unless pipelines.include? pipeline
+    print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/events?pretty")))["events"]["in"]
+    printf("\n")
+  else
+    print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/pipelines/#{pipeline}?pretty")))["pipelines"]["#{pipeline}"]["events"]["in"] rescue print 0
+  end
 elsif opt["l"]
   print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/process?pretty")))["process"]["cpu"]["load_average"]["1m"]
   printf("\n")
@@ -63,4 +74,20 @@ elsif opt["n"]
 elsif opt["u"]
   print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/jvm?pretty")))["jvm"]["mem"]["heap_used_percent"]
   printf("\n")
+elsif opt["w"]
+  pipeline = ARGV[0] rescue nil
+  unless pipelines.include? pipeline
+    print 0
+  else
+    print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/pipelines/#{pipeline}?pretty")))["pipelines"]["#{pipeline}"]["queue"]["events_count"] rescue print 0
+  end
+elsif opt["z"]
+  pipeline = ARGV[0] rescue nil
+  unless pipelines.include? pipeline
+    print 0
+  else
+    print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/pipelines/#{pipeline}?pretty")))["pipelines"]["#{pipeline}"]["queue"]["queue_size_in_bytes"] rescue print 0
+  end
+elsif opt["v"]
+  print JSON.parse(Net::HTTP.get(URI.parse("http://#{logstash}/_node/stats/process?pretty")))["process"]["mem"]["total_virtual_in_bytes"]
 end
