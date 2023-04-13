@@ -37,7 +37,7 @@ def usage
   printf("  * -e [<pipeline>] -> get logstash in events\n")
   printf("  * -w <pipeline> -> get the number of events in queue\n")
   printf("  * -z <pipeline> -> get the number of events in queue in bytes\n")
-  printf("  * pipelines: rbwindow-pipeline apstate-pipeline intrusion-pipeline bi-pipeline scanner-pipeline nmsp-pipeline radius-pipeline vault-pipeline netflow-pipeline sflow-pipeline meraki-pipeline monitor-pipeline social-pipeline location-pipeline mobility-pipeline redfish-pipeline bulkstats-pipeline ips-pipeline mailgw-pipeline scores-pipeline malware-pipeline \n")
+  printf("  * pipelines: bulkstats-pipeline location-pipeline meraki-pipeline mobility-pipeline monitor-pipeline netflow-pipeline nmsp-pipeline radius-pipeline rbwindow-pipeline redfish-pipeline scanner-pipeline sflow-pipeline social-pipeline vault-pipeline \n")
 end
 
 
