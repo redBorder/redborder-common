@@ -17,5 +17,4 @@
 
 source /etc/profile
 
-/opt/rb/bin/rb_get_redfish.rb $*
-
+/usr/lib/redborder/scripts/rb_get_redfish.rb $*
