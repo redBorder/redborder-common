@@ -35,7 +35,7 @@ done
 if [ "x$file" != "x" ]; then
   pid=$(head -n 1 $file)
 fi
-
+# TODO: better use [] && []
 if [ "x$pid" != "x" ]; then
   if [ -f /proc/$pid/cmdline ]; then
     pmap -x $pid | grep total | awk '{print $4}' | sed 's/K//'

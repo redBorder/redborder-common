@@ -47,7 +47,7 @@ while getopts "s:t:i:u:p:hla" opt; do
 done
 
 # echo "the host is $host the user is $user and the password is $password"
-
+# TODO: better use [] && [] && []
 credentials=""
 if [ "x$host" != "x" ]; then
   if [ "x$user" != "x" ]; then
@@ -60,7 +60,7 @@ fi
 if [ $list -eq 1 ]; then
   ipmitool $credentials sdr type  list
 else
-
+# TODO: better use [] && []
   if [ "x$sensor" != "x" ]; then
     if [ "x$sensor_type" != "x" ]; then  
       result=$(ipmitool $credentials sdr type $sensor_type |grep -e "^$sensor[ ]*" | sed 's/.*|//' | awk '{print $1}')
