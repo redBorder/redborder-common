@@ -45,7 +45,7 @@ exit 0
 %doc
 
 %changelog
-* Fri Apr 21 2023 Vicente Mesa <vimesa@redborder.com>
+* Fri Apr 21 2023 Vicente Mesa <vimesa@redborder.com> - 1.0.1-1
 - Added scripts folder
 
 * Wed Oct 26 2016 Juan J. Prieto <jjprieto@redborder.com> - 1.0.0-1
