@@ -21,9 +21,12 @@ Requires: bash figlet util-linux
 %install
 mkdir -p %{buildroot}/etc/profile.d
 mkdir -p %{buildroot}/usr/lib/redborder/bin
+mkdir -p %{buildroot}/usr/lib/redborder/scripts
 install -D -m 0644 resources/redborder-common.sh %{buildroot}/etc/profile.d
 cp resources/bin/* %{buildroot}/usr/lib/redborder/bin
+cp resources/scripts/* %{buildroot}/usr/lib/redborder/scripts
 chmod 0755 %{buildroot}/usr/lib/redborder/bin/*
+chmod 0755 %{buildroot}/usr/lib/redborder/scripts/*
 
 %pre
 getent group redborder >/dev/null || groupadd -r redborder
@@ -35,12 +38,16 @@ exit 0
 %files
 %defattr(0755,root,root)
 /usr/lib/redborder/bin
+/usr/lib/redborder/scripts
 %defattr(0644,root,root)
 /etc/profile.d/redborder-common.sh
 
 %doc
 
 %changelog
+* Fri Apr 21 2023 Vicente Mesa <vimesa@redborder.com>
+- Added scripts folder
+
 * Wed Oct 26 2016 Juan J. Prieto <jjprieto@redborder.com> - 1.0.0-1
 - Added wrapper to ruby scripts
 
