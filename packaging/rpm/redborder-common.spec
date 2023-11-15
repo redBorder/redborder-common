@@ -26,6 +26,7 @@ mkdir -p %{buildroot}/usr/lib/redborder/bin
 mkdir -p %{buildroot}/usr/lib/redborder/scripts
 install -D -m 0644 resources/redborder-common.sh %{buildroot}/etc/profile.d
 cp resources/bin/* %{buildroot}/usr/lib/redborder/bin
+cp -r resources/etc/* %{buildroot}/etc
 cp resources/scripts/* %{buildroot}/usr/lib/redborder/scripts
 chmod 0755 %{buildroot}/usr/lib/redborder/bin/*
 chmod 0755 %{buildroot}/usr/lib/redborder/scripts/*
@@ -43,6 +44,7 @@ exit 0
 /usr/lib/redborder/scripts
 %defattr(0644,root,root)
 /etc/profile.d/redborder-common.sh
+/etc/objects/mac_vendors
 
 %doc
 
