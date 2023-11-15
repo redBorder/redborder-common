@@ -49,6 +49,9 @@ exit 0
 %doc
 
 %changelog
+* Wed Nov 15 2023 Miguel Álvarez <malvarez@redborder.com> - 1.0.2-1
+- Added mac vendors file
+
 * Fri Apr 21 2023 Vicente Mesa <vimesa@redborder.com> - 1.0.1-1
 - Added scripts folder
 
