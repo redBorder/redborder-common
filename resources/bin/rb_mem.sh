@@ -29,6 +29,7 @@ while getopts "p:f:n:h" opt; do
     f) file=$OPTARG;;
     n) serv=$OPTARG;;
     h) usage;;
+    :) usage;;
   esac
 done
 
