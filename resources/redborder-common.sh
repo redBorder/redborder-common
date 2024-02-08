@@ -22,5 +22,5 @@ function log2syslog
 trap log2syslog DEBUG
 
 # Banner
-figlet -f slant "redborder-ng"
-echo ""
+# figlet -f slant "redborder-ng"
+# echo ""
