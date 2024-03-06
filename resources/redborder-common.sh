@@ -19,7 +19,7 @@ function log2syslog
 		*) shopt -q login_shell && logger -p local1.notice -t "bash[$$]" -- $USER : $PWD : $command ;;
 	esac
 }
-trap log2syslog DEBUG
+trap log2syslog INFO
 
 # Banner
 # figlet -f slant "redborder-ng"
