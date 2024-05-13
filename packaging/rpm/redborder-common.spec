@@ -10,7 +10,7 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/redborder-common
 Source0: %{name}-%{version}.tar.gz
 
-Requires: bash figlet util-linux
+Requires: bash figlet util-linux vim mlocate
 
 %description
 %{summary}
@@ -49,6 +49,9 @@ exit 0
 %doc
 
 %changelog
+* Mon May 13 2024 Miguel Negrón <manegron@redborder.com>
+- Add vim and mlocate as require 
+
 * Wed Nov 15 2023 Miguel Álvarez <malvarez@redborder.com> - 1.0.2-1
 - Added mac vendors file
 
