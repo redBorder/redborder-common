@@ -10,7 +10,7 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/redborder-common
 Source0: %{name}-%{version}.tar.gz
 
-Requires: bash figlet util-linux vim mlocate
+Requires: bash figlet util-linux vim mlocate tree htop
 
 %description
 %{summary}
