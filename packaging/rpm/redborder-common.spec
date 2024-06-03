@@ -10,7 +10,7 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/redborder-common
 Source0: %{name}-%{version}.tar.gz
 
-Requires: bash figlet util-linux vim mlocate tree htop tmux screen net-tools tcpdump wget bwm-ng
+Requires: bash figlet util-linux vim mlocate tree htop tmux screen net-tools tcpdump wget bwm-ng btop
 
 %description
 %{summary}
@@ -50,7 +50,7 @@ exit 0
 
 %changelog
 * Mon Jun 03 2024 Miguel Negrón <manegron@redborder.com>
-- Add bwm-ng
+- Add bwm-ng and btop
 
 * Thu May 23 2024 Miguel Negrón <manegron@redborder.com>
 - Add wget
