@@ -8,6 +8,9 @@ export JAVA_HOME=/usr/lib/jvm/jre
 export RAILS_ENV=production
 alias bwm-ng='bwm-ng -u bits -t 1000 -d'
 alias log='tail -n 200 -f'
+function lv() {
+    vim $(locate $1 | grep $2""$ | head -n 1)
+}
 
 # Send History to syslog
 function log2syslog
