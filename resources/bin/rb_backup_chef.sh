@@ -15,7 +15,6 @@ SCRIPT=$(basename "$0")
 # Export flags
 EXPORT_NODES=false
 EXPORT_ROLES=false
-EXPORT_ENVS=false
 
 # ======================
 # GENERAL FUNCTIONS
@@ -39,16 +38,14 @@ usage() {
   echo "  -f, --file <name>         Backup filename (timestamp will be appended)"
   echo "  -n, --nodes-only          Export nodes only"
   echo "  -r, --roles-only          Export roles only"
-  echo "  -E, --environments        Export environments only"
   echo "  -h, --help                Show help"
   echo ""
   echo "Examples:"
-  echo "  $SCRIPT -e                        # Export everything (nodes, roles, environments)"
+  echo "  $SCRIPT -e                        # Export everything (nodes and roles)"
   echo "  $SCRIPT -e -n                     # Export nodes only"
   echo "  $SCRIPT -e -r                     # Export roles only"
-  echo "  $SCRIPT -e -E                     # Export environments only"
   echo "  $SCRIPT -e -d /backup/path        # Export to specific directory"
-  echo "  $SCRIPT -e -f backupname          # Use filename backupname_<timestamp>.json"
+  echo "  $SCRIPT -e -f backupname           # Use filename backupname_<timestamp>.json"
   exit 1
 }
 
@@ -75,7 +72,6 @@ parse_args() {
       -d|--directory) BACKUP_DIR="$2"; shift 2 ;;
       -n|--nodes-only) EXPORT_NODES=true; shift ;;
       -r|--roles-only) EXPORT_ROLES=true; shift ;;
-      -E|--environments) EXPORT_ENVS=true; shift ;;
       -f|--file) FILENAME="$2"; shift 2 ;;
       -h|--help) usage ;;
       *) echo "Unknown option: $1"; usage ;;
@@ -87,11 +83,10 @@ parse_args() {
     usage
   fi
 
-  # If no filter specified, export all
-  if [[ "$EXPORT_NODES" = false && "$EXPORT_ROLES" = false && "$EXPORT_ENVS" = false ]]; then
+  # If no filter specified, export all (nodes + roles)
+  if [[ "$EXPORT_NODES" = false && "$EXPORT_ROLES" = false ]]; then
     EXPORT_NODES=true
     EXPORT_ROLES=true
-    EXPORT_ENVS=true
   fi
 }
 
@@ -148,24 +143,9 @@ export_data() {
       first=false
     done
     echo "" >> "$BACKUP_FILE"
-    echo "  }," >> "$BACKUP_FILE"
-  fi
-
-  # ---- Export ENVIRONMENTS ----
-  if [[ "$EXPORT_ENVS" = true ]]; then
-    log "INFO" "Exporting environments..."
-    echo "  \"environments\": {" >> "$BACKUP_FILE"
-    first=true
-    for env in $(knife environment list 2>/dev/null | grep -vE '^(INFO|WARN|ERROR):'); do
-      json=$(knife environment show "$env" -F json 2>/dev/null | grep -vE '^(INFO|WARN|ERROR):')
-      $first || echo "," >> "$BACKUP_FILE"
-      echo -n "    \"$env\": $json" >> "$BACKUP_FILE"
-      first=false
-    done
-    echo "" >> "$BACKUP_FILE"
     echo "  }" >> "$BACKUP_FILE"
   else
-    # Remove trailing comma if no environments
+    # Remove trailing comma if no roles but nodes exist
     sed -i '$ s/,$//' "$BACKUP_FILE"
   fi
 
