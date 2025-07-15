@@ -12,6 +12,7 @@ NODES_ONLY=false
 ROLES_ONLY=false
 INCLUDE_ENVIRONMENTS=false
 FILENAME=""
+SCRIPT=$(basename "$0")
 
 # Function for printing logs with timestamp and level (INFO, ERROR, ...)
 log() {
@@ -25,8 +26,8 @@ usage() {
   echo "Chef Backup"
   echo ""
   echo "Usage:"
-  echo "  $0 -e [options]"
-  echo "  $0 -i <file> [options]"
+  echo "  $SCRIPT -e [options]"
+  echo "  $SCRIPT -i <file> [options]"
   echo ""
   echo "Options:"
   echo "  -e, --export              Export Chef data"
@@ -39,16 +40,16 @@ usage() {
   echo "  -h, --help                Show this help"
   echo ""
   echo "Examples:"
-  echo "  $0 -e                          # Export all data (nodes, roles)"
-  echo "  $0 -e -n                       # Export only nodes"
-  echo "  $0 -e -r                       # Export only roles"
-  echo "  $0 -e -n -E                    # Export only nodes and include environments"
-  echo "  $0 -e -d /backup/chef          # Export to specific directory"
-  echo "  $0 -e -f backup                # Export using filename 'backup_<timestamp>.json'"
-  echo "  $0 -i backup_20250715.json     # Import all data from the given backup file"
-  echo "  $0 -i backup.json -r           # Import only roles from backup.json"
-  echo "  $0 -i backup.json -n           # Import only nodes from backup.json"
-  echo "  $0 -i backup.json -E           # Include environments in the import"
+  echo "  $SCRIPT -e                          # Export all data (nodes, roles)"
+  echo "  $SCRIPT -e -n                       # Export only nodes"
+  echo "  $SCRIPT -e -r                       # Export only roles"
+  echo "  $SCRIPT -e -n -E                    # Export only nodes and include environments"
+  echo "  $SCRIPT -e -d /backup/chef          # Export to specific directory"
+  echo "  $SCRIPT -e -f backup                # Export using filename 'backup_<timestamp>.json'"
+  echo "  $SCRIPT -i backup_20250715.json     # Import all data from the given backup file"
+  echo "  $SCRIPT -i backup.json -r           # Import only roles from backup.json"
+  echo "  $SCRIPT -i backup.json -n           # Import only nodes from backup.json"
+  echo "  $SCRIPT -i backup.json -E           # Include environments in the import"
   exit 1
 }
 
