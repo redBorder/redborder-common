@@ -49,6 +49,9 @@ exit 0
 %doc
 
 %changelog
+* Mon Jul 21 2025 Vicente Mesa <vimesa@redborder.com>
+- Add rb_backup_chef
+
 * Mon Sep 16 2024 Miguel Negrón <manegron@redborder.com>
 - Add xmlstarlet and iotop
 
