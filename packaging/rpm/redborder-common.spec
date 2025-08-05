@@ -10,7 +10,9 @@ License: AGPL 3.0
 URL: https://github.com/redBorder/redborder-common
 Source0: %{name}-%{version}.tar.gz
 
-Requires: bash figlet util-linux vim mlocate tree htop tmux screen net-tools tcpdump wget bwm-ng btop xmlstarlet iotop
+Requires: bash figlet util-linux vim mlocate tree htop tmux screen 
+Requires: net-tools tcpdump wget bwm-ng btop xmlstarlet iotop
+Requires: python3-dnf-plugin-versionlock
 
 %description
 %{summary}
@@ -49,6 +51,9 @@ exit 0
 %doc
 
 %changelog
+* Mon Aug 4 2025 manegron <manegron@redborder.com>
+- Install python3-dnf-plugin-versionlock
+
 * Mon Jul 21 2025 Vicente Mesa <vimesa@redborder.com>
 - Add rb_backup_chef
 
