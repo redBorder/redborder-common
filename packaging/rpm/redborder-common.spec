@@ -13,6 +13,7 @@ Source0: %{name}-%{version}.tar.gz
 Requires: bash figlet util-linux vim mlocate tree htop tmux screen 
 Requires: net-tools tcpdump wget bwm-ng btop xmlstarlet iotop
 Requires: python3-dnf-plugin-versionlock
+Requires: glibc-langpack-en
 
 %description
 %{summary}
@@ -51,6 +52,9 @@ exit 0
 %doc
 
 %changelog
+* Tue Feb 3 2026 manegron <manegron@redborder.com>
+- Add glibc-langpack-en as dependency
+
 * Mon Aug 4 2025 manegron <manegron@redborder.com>
 - Install python3-dnf-plugin-versionlock
 
