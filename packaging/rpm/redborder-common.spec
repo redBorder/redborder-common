@@ -14,6 +14,7 @@ Requires: bash figlet util-linux vim mlocate tree htop tmux screen
 Requires: net-tools tcpdump wget bwm-ng btop xmlstarlet iotop
 Requires: python3-dnf-plugin-versionlock
 Requires: glibc-langpack-en
+Requires: httping
 
 %description
 %{summary}
