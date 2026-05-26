@@ -15,6 +15,7 @@ Requires: net-tools tcpdump wget bwm-ng btop xmlstarlet iotop
 Requires: python3-dnf-plugin-versionlock
 Requires: glibc-langpack-en
 Requires: httping
+Requires: traceroute bind-utils
 
 %description
 %{summary}
@@ -53,6 +54,9 @@ exit 0
 %doc
 
 %changelog
+* Tue May 26 2026 manegron <manegron@redborder.com>
+- Add traceroute and bind-utils as dependency
+
 * Tue Feb 3 2026 manegron <manegron@redborder.com>
 - Add glibc-langpack-en as dependency
 
