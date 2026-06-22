@@ -37,7 +37,11 @@ def get_real_value(args):
             val = (usage / total) * 100 if total > 0 else 0
             return f"{val:.2f}"
         elif args.metric == "disk":
-            val = 0.00 # Standard disk metrics fallback
+            storage = summary.storage
+            committed = storage.committed if storage else 0
+            uncommitted = storage.uncommitted if storage else 0
+            total = committed + uncommitted
+            val = (committed / total) * 100 if total > 0 else 0.00
             return f"{val:.2f}"
     finally:
         Disconnect(si)
