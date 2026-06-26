@@ -1,101 +1,164 @@
 #!/usr/bin/env ruby
+#
+# Copyright (c) 2026 ENEO Tecnologia S.L.
+# All rights reserved.
+#
 
 require 'optparse'
 require 'json'
+require 'fileutils'
+require 'open3'
+require 'tmpdir'
 
-options = {}
-OptionParser.new do |opts|
-  opts.banner = "Usage: rb_vmware_exsi_monitor.rb [options]"
+class VMwareESXiMonitor
+  class ExecutionError < StandardError; end
 
-  opts.on('-i', '--host HOST-IP', 'Host IP') { |o| options[:host] = o }
-  opts.on('-u', '--user USER', 'Username') { |o| options[:user] = o }
-  opts.on('-p', '--password PASSWORD', 'Password') { |o| options[:password] = o }
-  opts.on('-d', '--datacenter DATACENTER', 'Datacenter') { |o| options[:datacenter] = o }
-  opts.on('-f', '--folder FOLDER', 'Folder') { |o| options[:folder] = o }
-  opts.on('-t', '--metric METRIC', 'Metric (cpu, memory, disk)') { |o| options[:metric] = o }
-end.parse!
+  SUPPORTED_METRICS = %w[cpu memory disk].freeze
 
-if !options[:host] || !options[:user] || !options[:password] || !options[:metric]
-  STDERR.puts "Missing required options"
-  exit 1
-end
+  def initialize(options)
+    @host = options[:host]
+    @user = options[:user]
+    @password = options[:password]
+    @metric = options[:metric]&.downcase
+  end
 
-# Set environment variables for govc
-ENV['GOVC_URL'] = "https://#{options[:user]}:#{options[:password]}@#{options[:host]}/sdk"
-ENV['GOVC_INSECURE'] = "true"
-ENV['GOVC_DATACENTER'] = options[:datacenter] if options[:datacenter] && !options[:datacenter].empty?
-ENV['HOME'] = "/tmp/govc-home-#{Process.uid}"
-ENV['GOVC_HOME'] = "/tmp/govc-home-#{Process.uid}"
-ENV['GOVC_PERSIST_SESSION'] = "false"
-Dir.mkdir(ENV['HOME']) rescue nil
-
-begin
-  case options[:metric].downcase
-  when 'cpu'
-    output = `govc host.info -json`
-    if $?.exitstatus != 0
-      raise "govc host.info failed with exit code #{$?.exitstatus}"
+  def run
+    validate_options!
+    setup_environment!
+    
+    case @metric
+    when 'cpu'
+      puts sprintf("%.2f", query_cpu_usage)
+    when 'memory'
+      puts sprintf("%.2f", query_memory_usage)
+    when 'disk'
+      puts query_disk_usage.join(';')
+    else
+      raise ArgumentError, "Unsupported metric: #{@metric}"
     end
-    data = JSON.parse(output)
-    vms = data['HostSystems'] || data['hostSystems']
-    host_system = vms ? vms[0] : nil
-    raise "No HostSystem found" unless host_system
+  end
 
-    summary = host_system['Summary'] || host_system['summary']
-    quick_stats = summary['quickStats'] || summary['QuickStats']
-    hardware = summary['hardware'] || summary['Hardware']
+  private
+
+  def validate_options!
+    raise ArgumentError, "Missing required host parameter (-i)" if @host.nil? || @host.empty?
+    raise ArgumentError, "Missing required username parameter (-u)" if @user.nil? || @user.empty?
+    raise ArgumentError, "Missing required password parameter (-p)" if @password.nil? || @password.empty?
+    raise ArgumentError, "Missing required metric parameter (-t)" if @metric.nil? || @metric.empty?
+    raise ArgumentError, "Unsupported metric: #{@metric}. Supported metrics are: #{SUPPORTED_METRICS.join(', ')}" unless SUPPORTED_METRICS.include?(@metric)
+  end
+
+  def setup_environment!
+    ENV['GOVC_URL'] = "https://#{@user}:#{@password}@#{@host}/sdk"
+    ENV['GOVC_INSECURE'] = "true"
+    ENV['GOVC_PERSIST_SESSION'] = "false"
+    
+    # Isolate session directory to avoid write permissions errors
+    govc_home = File.join(Dir.tmpdir, "govc-home-#{Process.uid}")
+    ENV['HOME'] = govc_home
+    ENV['GOVC_HOME'] = govc_home
+    
+    begin
+      FileUtils.mkdir_p(govc_home)
+    rescue => e
+      warn "Warning: Failed to create GOVC directory #{govc_home}: #{e.message}"
+    end
+  end
+
+  def execute_command(*args)
+    stdout, stderr, status = Open3.capture3(*args)
+    unless status.success?
+      handle_error!(stderr, args)
+    end
+    stdout
+  end
+
+  def handle_error!(stderr, args)
+    err_msg = stderr.strip
+    err_msg_down = err_msg.downcase
+    if err_msg_down.include?("connection refused") || err_msg_down.include?("no such host") || err_msg_down.include?("i/o timeout")
+      raise ExecutionError, "Host #{@host} is unreachable or connection timed out."
+    elsif err_msg_down.include?("unauthorized") || err_msg_down.include?("login failed") ||
+          err_msg_down.include?("incorrect user name") || err_msg_down.include?("incorrect username")
+      raise ExecutionError, "Authentication failed for user #{@user} on host #{@host}."
+    else
+      raise ExecutionError, err_msg.empty? ? "Command '#{args.join(' ')}' failed." : err_msg
+    end
+  end
+
+  def fetch_host_info
+    output = execute_command('govc', 'host.info', '-json')
+    data = JSON.parse(output)
+    host_systems = data['HostSystems'] || data['hostSystems']
+    raise ExecutionError, "No HostSystem found in govc response" if host_systems.nil? || host_systems.empty?
+    host_systems[0]
+  end
+
+  def query_cpu_usage
+    host_system = fetch_host_info
+    summary = host_system['Summary'] || host_system['summary'] || {}
+    quick_stats = summary['quickStats'] || summary['QuickStats'] || {}
+    hardware = summary['hardware'] || summary['Hardware'] || {}
 
     usage = quick_stats['overallCpuUsage'].to_f
     cpu_mhz = hardware['cpuMhz'].to_f
     num_cores = hardware['numCpuCores'].to_f
     total = cpu_mhz * num_cores
 
-    val = total > 0 ? (usage / total) * 100 : 0
-    puts sprintf("%.2f", val)
+    total > 0 ? (usage / total) * 100.0 : 0.0
+  end
 
-  when 'memory'
-    output = `govc host.info -json`
-    if $?.exitstatus != 0
-      raise "govc host.info failed with exit code #{$?.exitstatus}"
-    end
-    data = JSON.parse(output)
-    vms = data['HostSystems'] || data['hostSystems']
-    host_system = vms ? vms[0] : nil
-    raise "No HostSystem found" unless host_system
+  def query_memory_usage
+    host_system = fetch_host_info
+    summary = host_system['Summary'] || host_system['summary'] || {}
+    quick_stats = summary['quickStats'] || summary['QuickStats'] || {}
+    hardware = summary['hardware'] || summary['Hardware'] || {}
 
-    summary = host_system['Summary'] || host_system['summary']
-    quick_stats = summary['quickStats'] || summary['QuickStats']
-    hardware = summary['hardware'] || summary['Hardware']
+    usage_mb = quick_stats['overallMemoryUsage'].to_f
+    memory_size_bytes = hardware['memorySize'].to_f
+    total_mb = memory_size_bytes / (1024.0 * 1024.0)
 
-    usage = quick_stats['overallMemoryUsage'].to_f # in MB
-    memory_size = hardware['memorySize'].to_f # in bytes
-    total = memory_size / (1024.0 * 1024.0) # to MB
+    total_mb > 0 ? (usage_mb / total_mb) * 100.0 : 0.0
+  end
 
-    val = total > 0 ? (usage / total) * 100 : 0
-    puts sprintf("%.2f", val)
-
-  when 'disk'
-    output = `govc datastore.info -json`
-    if $?.exitstatus != 0
-      raise "govc datastore.info failed with exit code #{$?.exitstatus}"
-    end
+  def query_disk_usage
+    output = execute_command('govc', 'datastore.info', '-json')
     data = JSON.parse(output)
     datastores = data['Datastores'] || data['datastores'] || []
     
-    ds_usages = datastores.map do |ds|
-      summary = ds['Summary'] || ds['summary']
+    datastores.map do |ds|
+      summary = ds['Summary'] || ds['summary'] || {}
       capacity = summary['capacity'].to_f
       free_space = summary['freeSpace'].to_f
       used = capacity - free_space
-      percent = capacity > 0 ? (used / capacity) * 100 : 0
+      percent = capacity > 0 ? (used / capacity) * 100.0 : 0.0
       sprintf("%.2f", percent)
     end
-    puts ds_usages.join(";")
-  else
-    STDERR.puts "Unknown metric: #{options[:metric]}"
+  end
+end
+
+if __FILE__ == $0
+  options = {}
+  OptionParser.new do |opts|
+    opts.banner = "Usage: rb_vmware_exsi_monitor.rb [options]"
+
+    opts.on('-i', '--host HOST-IP', 'Host IP') { |o| options[:host] = o }
+    opts.on('-u', '--user USER', 'Username') { |o| options[:user] = o }
+    opts.on('-p', '--password PASSWORD', 'Password') { |o| options[:password] = o }
+    opts.on('-t', '--metric METRIC', "Metric (#{VMwareESXiMonitor::SUPPORTED_METRICS.join(', ')})") { |o| options[:metric] = o }
+  end.parse!
+
+  begin
+    monitor = VMwareESXiMonitor.new(options)
+    monitor.run
+  rescue ArgumentError => e
+    STDERR.puts "Error: #{e.message}"
+    exit 1
+  rescue VMwareESXiMonitor::ExecutionError => e
+    STDERR.puts "Error: #{e.message}"
+    exit 1
+  rescue => e
+    STDERR.puts "Error: #{e.class} - #{e.message}"
     exit 1
   end
-rescue => e
-  STDERR.puts "Error querying ESXi host: #{e.message}"
-  exit 1
 end
