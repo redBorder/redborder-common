@@ -16,10 +16,9 @@ SOURCES:
 	mkdir -p SOURCES
 
 archive: SOURCES
-  cd ../../ && \
-    git archive --prefix=$(PACKAGE_NAME)-$(VERSION)/ \
-            -o packaging/rpm/SOURCES/$(PACKAGE_NAME)-$(VERSION).tar.gz $(LATEST)
-			--transform="s/./$(PACKAGE_NAME)-$(VERSION)/" ./
+	cd ../../ && \
+	git archive --prefix=$(PACKAGE_NAME)-$(VERSION)/ \
+		-o packaging/rpm/SOURCES/$(PACKAGE_NAME)-$(VERSION).tar.gz HEAD
 
 build_prepare: archive
 	mkdir -p $(RESULT_DIR)
