@@ -87,7 +87,7 @@ class VMwareESXiMonitor
   end
 
   def fetch_host_info
-    output = execute_command('govc', 'host.info', '-json')
+    output = execute_command('/usr/bin/govc', 'host.info', '-json')
     data = JSON.parse(output)
     host_systems = data['HostSystems'] || data['hostSystems']
     raise ExecutionError, "No HostSystem found in govc response" if host_systems.nil? || host_systems.empty?
@@ -122,7 +122,7 @@ class VMwareESXiMonitor
   end
 
   def query_disk_usage
-    output = execute_command('govc', 'datastore.info', '-json')
+    output = execute_command('/usr/bin/govc', 'datastore.info', '-json')
     data = JSON.parse(output)
     datastores = data['Datastores'] || data['datastores'] || []
     

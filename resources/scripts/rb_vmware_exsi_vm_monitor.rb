@@ -110,7 +110,7 @@ class VMwareESXiVMMonitor
   end
 
   def fetch_vm_info
-    output = execute_command('govc', 'vm.info', '-json', @name)
+    output = execute_command('/usr/bin/govc', 'vm.info', '-json', @name)
     data = JSON.parse(output)
     vms = data['VirtualMachines'] || data['virtualMachines']
     raise ExecutionError, "VM #{@name} not found on host #{@host}." if vms.nil? || vms.empty?
@@ -119,11 +119,11 @@ class VMwareESXiVMMonitor
 
   def query_cpu_usage
     # Use govc find to locate the exact VM path
-    vm_path = execute_command('govc', 'find', '.', '-name', @name).strip
+    vm_path = execute_command('/usr/bin/govc', 'find', '.', '-name', @name).strip
     raise ExecutionError, "Could not find VM path for #{@name}." if vm_path.empty?
 
     # Sample performance metric cpu.usage.average
-    metric_output = execute_command('govc', 'metric.sample', '-json', vm_path, 'cpu.usage.average')
+    metric_output = execute_command('/usr/bin/govc', 'metric.sample', '-json', vm_path, 'cpu.usage.average')
     metric_data = JSON.parse(metric_output)
     sample = metric_data['sample'] || metric_data['Sample']
     raise ExecutionError, "No performance metrics returned for VM #{@name}." if sample.nil? || sample.empty?
