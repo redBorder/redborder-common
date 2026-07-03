@@ -35,7 +35,7 @@ jobs:
       - name: Install build tools RPM
         run: |
           docker cp ./ builder:/build
-          docker exec builder bash -c "yum install -y epel-release && yum install -y make git mock"
+          docker exec builder bash -c "yum install -y epel-release && yum install -y make git mock wget"
           docker exec builder bash -c "rm -rf /etc/mock/default.cfg"
 
       - name: Setup SDK
