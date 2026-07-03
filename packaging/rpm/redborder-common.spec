@@ -16,8 +16,6 @@ Requires: python3-dnf-plugin-versionlock
 Requires: glibc-langpack-en
 Requires: httping
 Requires: traceroute bind-utils
-Requires: govc
-
 
 %description
 %{summary}
