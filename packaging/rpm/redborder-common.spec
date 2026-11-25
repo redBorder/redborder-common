@@ -56,6 +56,9 @@ exit 0
 %doc
 
 %changelog
+* Wed Nov 25 2026 Miguel Negrón <manegron@redborder.com>
+- Add rb_migrate_to_cinc.sh to migrate nodes from Chef to Cinc
+
 * Tue May 26 2026 manegron <manegron@redborder.com>
 - Add traceroute and bind-utils as dependency
 
