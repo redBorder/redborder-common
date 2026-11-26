@@ -56,6 +56,9 @@ exit 0
 %doc
 
 %changelog
+* Thu Nov 26 2026 Miguel Negrón <manegron@redborder.com>
+- Add rb_migrate_to_seaweedfs.sh to migrate the S3 service from MinIO to SeaweedFS
+
 * Wed Nov 25 2026 Miguel Negrón <manegron@redborder.com>
 - Add rb_migrate_to_cinc.sh to migrate nodes from Chef to Cinc
 
